@@ -20,9 +20,13 @@ class GraphicsEngine:
         self.ctx = mgl.create_context()
         # self.ctx.front_face = "cw"
         self.ctx.enable(flags=mgl.DEPTH_TEST | mgl.CULL_FACE) #Add depth when rendering
+        #mouse settings
+        pg.event.set_grab(True) #Mouse always on center
+        pg.mouse.set_visible(False) #Hide mouse
         #create an object to help track time
         self.clock = pg.time.Clock()
         self.time = 0
+        self.delta_time = 0 #Make the camera movement independent of the framerate
         #camera
         self.camera = Camera(self)
         #scene
@@ -52,8 +56,9 @@ class GraphicsEngine:
         while True:
             self.get_time()
             self.check_events()
+            self.camera.update()
             self.render()
-            self.clock.tick(60) #Set framerate
+            self.delta_time = self.clock.tick(60) #Set framerate
         
 if __name__ == "__main__":
     app = GraphicsEngine()
