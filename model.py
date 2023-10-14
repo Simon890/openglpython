@@ -1,6 +1,7 @@
 import numpy as np
 from main import GraphicsEngine
 import glm
+import pygame as pg
 
 class Triangle:
     def __init__(self, app : GraphicsEngine) -> None:
@@ -56,11 +57,19 @@ class Cube:
         self.shader_program = self.get_shader_program("default")
         self.vao = self.get_vao()
         self.m_model = self.get_model_matrix()
+        self.texture = self.get_texture(path="textures/img.png")
         self.on_init()
+        
+    def get_texture(self, path):
+        texture = pg.image.load(path).convert()
+        texture = pg.transform.flip(texture, flip_x=False, flip_y=True) #Flip on Y because pygame has different axis
+        #                          Texture size            Colors components   Texture as string
+        texture = self.ctx.texture(size=texture.get_size(), components=3, data=pg.image.tostring(texture, "RGB"))
+        return texture
         
     def update(self):
         #Generate rotation and update the matrix_model
-        m_model = glm.rotate(self.m_model, self.app.time, glm.vec3(0, 1, 0))
+        m_model = glm.rotate(self.m_model, self.app.time * 0.5, glm.vec3(0, 1, 0))
         self.shader_program["m_model"].write(m_model)
         
     def get_model_matrix(self):
@@ -70,6 +79,10 @@ class Cube:
     
     def on_init(self):
         #Exports variables to shaders
+        #texture
+        self.shader_program["u_texture_0"] = 0 #Number of the texture unit
+        self.texture.use(0) #Bind texture location
+        #mvp
         self.shader_program["m_proj"].write(self.app.camera.m_proj)
         self.shader_program["m_view"].write(self.app.camera.m_view)
         self.shader_program["m_model"].write(self.m_model)
