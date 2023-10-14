@@ -2,6 +2,7 @@ import pygame as pg
 import moderngl as mgl
 import sys
 from model import *
+from camera import Camera
 
 class GraphicsEngine:
     def __init__(self, win_size=(1600, 900)):
@@ -17,10 +18,15 @@ class GraphicsEngine:
         pg.display.set_mode(self.WIN_SIZE, flags=pg.OPENGL | pg.DOUBLEBUF)
         #Detect and use existing opengl
         self.ctx = mgl.create_context()
+        # self.ctx.front_face = "cw"
+        self.ctx.enable(flags=mgl.DEPTH_TEST | mgl.CULL_FACE) #Add depth when rendering
         #create an object to help track time
         self.clock = pg.time.Clock()
+        self.time = 0
+        #camera
+        self.camera = Camera(self)
         #scene
-        self.scene = Triangle(self)
+        self.scene = Cube(self)
         
     def check_events(self):
         for event in pg.event.get():
@@ -38,8 +44,13 @@ class GraphicsEngine:
         #swap buffers   
         pg.display.flip()
     
+    def get_time(self):
+        #Get time as seconds
+        self.time = pg.time.get_ticks() * 0.001
+    
     def run(self):
         while True:
+            self.get_time()
             self.check_events()
             self.render()
             self.clock.tick(60) #Set framerate
