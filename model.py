@@ -1,8 +1,11 @@
 import glm
 
 class BaseModel:
-    def __init__(self, app, vao_name, text_id) -> None:
+    def __init__(self, app, vao_name, text_id, pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)) -> None:
         self.app = app
+        self.pos = pos
+        self.scale = scale
+        self.rot = glm.vec3([glm.radians(a) for a in rot])
         self.m_model = self.get_model_matrix()
         self.text_id = text_id
         self.vao = app.mesh.vao.vaos[vao_name]
@@ -13,6 +16,14 @@ class BaseModel:
     
     def get_model_matrix(self):
         m_model = glm.mat4()
+        #translate
+        m_model = glm.translate(m_model, self.pos) #Translate object with coordinates
+        #rotate
+        m_model = glm.rotate(m_model, self.rot.x, glm.vec3(1, 0, 0))
+        m_model = glm.rotate(m_model, self.rot.y, glm.vec3(0, 1, 0))
+        m_model = glm.rotate(m_model, self.rot.z, glm.vec3(0, 0, 1))
+        #scale
+        m_model = glm.scale(m_model, self.scale)
         return m_model
     
     def render(self):
@@ -20,8 +31,8 @@ class BaseModel:
         self.vao.render()
 
 class Cube(BaseModel):
-    def __init__(self, app, vao_name = "cube", text_id = 0) -> None:
-        super().__init__(app, vao_name, text_id)
+    def __init__(self, app, vao_name = "cube", text_id = 0, pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)) -> None:
+        super().__init__(app, vao_name, text_id, pos, rot, scale)
         self.on_init()
     
     def update(self):
